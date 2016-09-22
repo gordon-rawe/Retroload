@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">RetroDownload</string>
+    <string name="start_download">StartDownload</string>
+    <string name="not_started">未开始</string>
+</resources>
