@@ -1,5 +1,9 @@
 package rawe.gordon.com.retrodownload.download;
 
+import android.util.Log;
+
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,31 +18,28 @@ import rawe.gordon.com.retrodownload.MainActivity;
 /**
  * Created by gordon on 9/22/16.
  */
-public class WorkGroup {
-
-    public static final int WORK_THREAD_COUNT = 4;
-
-    public WorkGroup(String bookId, ProgressListener progressListener) {
-        this.bookId = bookId;
-        this.executorService = Executors.newFixedThreadPool(WORK_THREAD_COUNT);
-        this.progressListener = progressListener;
-        jobFutures = new ArrayList<>();
-        urls = getBookImagesList(this.bookId);
-        COUNT = urls.size();
-        counter = new AtomicInteger(0);
+public class Worker {
+    enum Status{
+        DOWNLOADING,
+        PAUSED,
+        CANCELD
     }
 
+    public static final int WORK_THREAD_COUNT = 4;
     private String bookId;
     private ExecutorService executorService;
-    private ProgressListener progressListener;
     private List<Future> jobFutures;
     private List<String> urls;
     private int COUNT;
     private AtomicInteger counter;
 
-
-    public interface ProgressListener {
-        void callbackPercent(int finished, int total);
+    public Worker(String bookId) {
+        this.bookId = bookId;
+        this.executorService = Executors.newFixedThreadPool(WORK_THREAD_COUNT);
+        jobFutures = new ArrayList<>();
+        urls = ImageUrlRetriever.getBookImagesList(this.bookId);
+        COUNT = urls.size();
+        counter = new AtomicInteger(0);
     }
 
     public void startDownload() {
@@ -50,22 +51,26 @@ public class WorkGroup {
                         DownloadUtil.downloadFile(url, MainActivity.FOLDER + "/" + UUID.randomUUID().toString() + ".jpg");
                     } catch (IOException e) {
                         e.printStackTrace();
-                        System.out.println("error");
+                        Log.d(Worker.class.getCanonicalName(), "url: " + url + "download error happened...");
+                        EventBus.getDefault().post(new ProgressEvent(bookId, counter.get(), false, COUNT));
                     }
-                    System.out.println(url);
-                    progressListener.callbackPercent(counter.incrementAndGet(), COUNT);
+                    Log.d(Worker.class.getCanonicalName(), "url: " + url + "downloaded...");
+                    EventBus.getDefault().post(new ProgressEvent(bookId, counter.getAndIncrement(), true, COUNT));
                 }
             }));
         }
         executorService.shutdown();
     }
 
+    public void pauseDownload() {
 
-    public static List<String> getBookImagesList(String book_id) {
-        List<String> retValue = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
-            retValue.add("http://i.imgur.com/wyCOFYM.jpg");
-        }
-        return retValue;
+    }
+
+    public void cancelDownload() {
+
+    }
+
+    public void resumeDownload() {
+
     }
 }
