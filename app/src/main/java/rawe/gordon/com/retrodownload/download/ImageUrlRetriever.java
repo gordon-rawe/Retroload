@@ -9,7 +9,7 @@ import java.util.List;
 public class ImageUrlRetriever {
     public static List<String> getBookImagesList(String book_id) {
         List<String> retValue = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 20; i++) {
             retValue.add("http://i.imgur.com/wyCOFYM.jpg");
         }
         return retValue;

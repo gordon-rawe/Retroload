@@ -52,4 +52,8 @@ public class Retroload {
     public boolean isDownloadJobExisted(String bookId) {
         return workGroups.containsKey(bookId);
     }
+
+    public void finishDownload(String bookId) {
+        workGroups.remove(bookId);
+    }
 }
