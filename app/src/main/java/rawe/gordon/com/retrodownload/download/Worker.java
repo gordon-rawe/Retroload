@@ -124,18 +124,18 @@ public class Worker {
             }
         }
         persistCheckList();
+        Retroload.getInstance().finishDownload(bookId);
     }
 
     public void cancelDownload() {
         //根据对照表删除文件，同时删除对照表
         //停止线程池，保存下载的对照表
-        for (Future job : jobFutures) {
-            if (!job.isDone()) {
-                job.cancel(true);
-            }
-        }
-        deleteCheckList();
-        Retroload.getInstance().finishDownload(bookId);
+//        for (Future job : jobFutures) {
+//            if (!job.isDone()) {
+//                job.cancel(false);
+//            }
+//        }
+//        deleteCheckList();
     }
 
     public void resumeDownload() {

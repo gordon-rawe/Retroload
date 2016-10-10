@@ -31,22 +31,24 @@ public class Retroload {
     }
 
     public void startDownload(String bookId) throws Exception {
-        if (isDownloadJobExisted(bookId)) throw new Exception("download job already in progress");
         Worker worker;
         workGroups.put(bookId, worker = new Worker(bookId));
         worker.startDownload();
     }
 
     public void pauseDownload(String bookId) {
-        workGroups.get(bookId).pauseDownload();
+        Worker worker = workGroups.get(bookId);
+        if(worker!=null) worker.pauseDownload();
     }
 
     public void resumeDownload(String bookId) {
-        workGroups.get(bookId).resumeDownload();
+        Worker worker = workGroups.get(bookId);
+        if(worker!=null) worker.pauseDownload();
     }
 
     public void cancelDownload(String bookId) {
-        workGroups.get(bookId).cancelDownload();
+        Worker worker = workGroups.get(bookId);
+        if(worker!=null) worker.pauseDownload();
     }
 
     public boolean isDownloadJobExisted(String bookId) {
