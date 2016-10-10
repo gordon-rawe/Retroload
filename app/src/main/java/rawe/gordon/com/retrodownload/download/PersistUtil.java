@@ -10,7 +10,7 @@ import java.io.IOException;
 /**
  * Created by gordon on 10/8/16.
  */
-public class Files {
+public class PersistUtil {
     public static void saveTextFile(String srcString, String dest) {
         File file = new File(dest);
         FileWriter fileWriter = null;
@@ -48,7 +48,7 @@ public class Files {
                 retBuilder.append(line = bufferedReader.readLine());
                 while (line != null) {
                     line = bufferedReader.readLine();
-                    retBuilder.append(line);
+                    if (line != null) retBuilder.append(line);
                 }
                 return retBuilder.toString();
             } catch (IOException e) {

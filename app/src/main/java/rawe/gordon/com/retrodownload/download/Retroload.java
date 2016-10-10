@@ -30,6 +30,10 @@ public class Retroload {
         return httpClient;
     }
 
+    public Worker getWorker(String key){
+        return workGroups.get(key);
+    }
+
     public void startDownload(String bookId) throws Exception {
         if (isDownloadJobExisted(bookId)) throw new Exception("download job already in progress");
         Worker worker;

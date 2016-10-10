@@ -92,6 +92,12 @@ public class Worker {
 
     public void pauseDownload() {
         //停止线程池，保存下载的对照表
+        for (Future job : jobFutures) {
+            if (!job.isDone()) {
+                job.cancel(false);
+            }
+        }
+        persistCheckList();
     }
 
     public void cancelDownload() {
@@ -104,15 +110,16 @@ public class Worker {
 
     public void persistCheckList() {
         String content = JSON.toJSONString(checkList);
-        Files.saveTextFile(content, getCheckListNameByBookId(bookId));
+        System.out.println(content);
+        PersistUtil.saveTextFile(content, getCheckListNameByBookId(bookId));
     }
 
-    private Map<String, Entry> getCheckList() {
-        String content = Files.readFileAsText(getCheckListNameByBookId(bookId));
+    public static Map<String, Entry> getCheckList(String book_id) {
+        String content = PersistUtil.readFileAsText(getCheckListNameByBookId(book_id));
         return (Map<String, Entry>) JSON.parse(content);
     }
 
-    private String getCheckListNameByBookId(String bookId) {
+    private static String getCheckListNameByBookId(String bookId) {
         return MainActivity.FOLDER + "/check_list_" + bookId + ".txt";
     }
 }
