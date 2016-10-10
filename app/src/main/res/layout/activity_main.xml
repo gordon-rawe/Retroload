@@ -55,6 +55,15 @@
             android:background="#cccccccc"
             android:padding="10dp"
             android:text="@string/cancel_1" />
+
+        <TextView
+            android:id="@+id/delete_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="#cccccccc"
+            android:padding="10dp"
+            android:text="@string/delete_1" />
     </LinearLayout>
 
     <LinearLayout
@@ -107,5 +116,14 @@
             android:background="#cccccccc"
             android:padding="10dp"
             android:text="@string/cancel_2" />
+
+        <TextView
+            android:id="@+id/delete_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="#cccccccc"
+            android:padding="10dp"
+            android:text="@string/delete_2" />
     </LinearLayout>
 </LinearLayout>

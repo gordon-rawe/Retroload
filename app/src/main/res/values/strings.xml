@@ -9,4 +9,6 @@
     <string name="cancel_1">Cancel 1</string>
     <string name="resume_2">Resume 2</string>
     <string name="cancel_2">Cancel 2</string>
+    <string name="delete_1">Delete 1</string>
+    <string name="delete_2">Delete 2</string>
 </resources>

@@ -3,6 +3,7 @@ package rawe.gordon.com.retrodownload.download;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -25,11 +26,6 @@ import rawe.gordon.com.retrodownload.MainActivity;
  * Created by gordon on 9/22/16.
  */
 public class Worker {
-    enum Status {
-        DOWNLOADING,
-        PAUSED,
-        CANCELD
-    }
 
     public static class Entry implements Serializable {
         public String savedName;
@@ -47,6 +43,7 @@ public class Worker {
     private List<Future> jobFutures;
     private List<String> urls;
     private int COUNT;
+    private int downloadedCount;
     private AtomicInteger counter;
     private Map<String, Entry> checkList;
 
@@ -63,7 +60,11 @@ public class Worker {
         if (check.exists()) {
             checkList = getCheckList(bookId);
             COUNT = checkList.size();
+            for (final String url : checkList.keySet()) {
+                if (checkList.get(url).isDownloaded) downloadedCount++;
+            }
         } else {
+            downloadedCount = 0;
             checkList = new HashMap<>();
             urls = ImageUrlRetriever.getBookImagesList(this.bookId);
             for (int i = 0; i < urls.size(); i++) {
@@ -75,6 +76,11 @@ public class Worker {
     }
 
     private void performDownload() {
+        if (downloadedCount == COUNT) {
+            EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount, ProgressEvent.ALL_DOWNLOADED, COUNT));
+            Retroload.getInstance().finishDownload(bookId);
+            return;
+        }
         for (final String url : checkList.keySet()) {
             final Entry entry = checkList.get(url);
             if (entry.isDownloaded) continue;
@@ -87,16 +93,17 @@ public class Worker {
                         e.printStackTrace();
                         Log.d(Worker.class.getCanonicalName(), "url: " + url + "download error happened...");
                         cancelDownload();
-                        EventBus.getDefault().post(new ProgressEvent(bookId, counter.get(), false, COUNT));
+                        EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount + counter.get(), ProgressEvent.EXCEPTION, COUNT));
                     }
                     synchronized (this) {
                         checkList.get(url).isDownloaded = true;
                     }
                     Log.d(Worker.class.getCanonicalName(), "url: " + url + "downloaded...");
-                    EventBus.getDefault().post(new ProgressEvent(bookId, counter.incrementAndGet(), true, COUNT));
+                    EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount + counter.incrementAndGet(), COUNT));
                     if (counter.get() == COUNT) {
                         Retroload.getInstance().finishDownload(bookId);
                         persistCheckList();
+                        EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount + counter.get(), ProgressEvent.FINISH, COUNT));
                     }
                 }
             }));
@@ -128,6 +135,7 @@ public class Worker {
             }
         }
         deleteCheckList();
+        Retroload.getInstance().finishDownload(bookId);
     }
 
     public void resumeDownload() {
@@ -151,11 +159,17 @@ public class Worker {
     }
 
     public static Map<String, Entry> getCheckList(String book_id) {
+        Map<String, Entry> retValue = new HashMap<>();
         String content = PersistUtil.readFileAsText(getCheckListNameByBookId(book_id));
-        return (Map<String, Entry>) JSON.parse(content);
+        JSONObject jsonObject = JSON.parseObject(content);
+        for (String key : jsonObject.keySet()) {
+            JSONObject tmpValue = (JSONObject) jsonObject.get(key);
+            retValue.put(key, new Entry((String) tmpValue.get("savedName"), (Boolean) tmpValue.get("isDownloaded")));
+        }
+        return retValue;
     }
 
-    private static String getCheckListNameByBookId(String bookId) {
+    public static String getCheckListNameByBookId(String bookId) {
         return MainActivity.FOLDER + "/check_list_" + bookId + ".txt";
     }
 }
