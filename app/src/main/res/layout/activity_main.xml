@@ -3,31 +3,109 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/percent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:padding="10dp"
-        android:text="@string/not_started" />
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/start_download"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:background="#cccccccc"
-        android:padding="10dp"
-        android:text="@string/start_download" />
+        <TextView
+            android:id="@+id/percent_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:padding="10dp"
+            android:text="@string/hint_1" />
 
-    <TextView
-        android:id="@+id/retrieve_data"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:background="#cccccccc"
-        android:padding="10dp"
-        android:text="@string/retrieve_data" />
+        <TextView
+            android:id="@+id/start_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="#cccccccc"
+            android:padding="10dp"
+            android:text="@string/start_1" />
+
+        <TextView
+            android:id="@+id/pause_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="#cccccccc"
+            android:padding="10dp"
+            android:text="@string/pause_1" />
+
+        <TextView
+            android:id="@+id/resume_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="#cccccccc"
+            android:padding="10dp"
+            android:text="@string/resume_1" />
+
+        <TextView
+            android:id="@+id/cancel_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="#cccccccc"
+            android:padding="10dp"
+            android:text="@string/cancel_1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/percent_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:padding="10dp"
+            android:text="@string/hint_1" />
+
+        <TextView
+            android:id="@+id/start_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="#cccccccc"
+            android:padding="10dp"
+            android:text="@string/start_2" />
+
+        <TextView
+            android:id="@+id/pause_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="#cccccccc"
+            android:padding="10dp"
+            android:text="@string/pause_2" />
+
+        <TextView
+            android:id="@+id/resume_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="#cccccccc"
+            android:padding="10dp"
+            android:text="@string/resume_2" />
+
+        <TextView
+            android:id="@+id/cancel_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="#cccccccc"
+            android:padding="10dp"
+            android:text="@string/cancel_2" />
+    </LinearLayout>
 </LinearLayout>

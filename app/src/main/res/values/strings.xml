@@ -1,6 +1,12 @@
 <resources>
     <string name="app_name">RetroDownload</string>
-    <string name="start_download">StartDownload</string>
-    <string name="not_started">未开始</string>
-    <string name="retrieve_data">retrieve data</string>
+    <string name="start_1">Start 1</string>
+    <string name="hint_1">未开始</string>
+    <string name="pause_1">Pause 1</string>
+    <string name="pause_2">Pause 2</string>
+    <string name="start_2">Start 2</string>
+    <string name="resume_1">Resume 1</string>
+    <string name="cancel_1">Cancel 1</string>
+    <string name="resume_2">Resume 2</string>
+    <string name="cancel_2">Cancel 2</string>
 </resources>

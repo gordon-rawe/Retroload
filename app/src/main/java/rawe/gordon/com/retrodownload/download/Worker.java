@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSON;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -30,6 +31,16 @@ public class Worker {
         CANCELD
     }
 
+    public static class Entry implements Serializable {
+        public String savedName;
+        public boolean isDownloaded;
+
+        public Entry(String savedName, boolean isDownloaded) {
+            this.isDownloaded = isDownloaded;
+            this.savedName = savedName;
+        }
+    }
+
     public static final int WORK_THREAD_COUNT = 4;
     private String bookId;
     private ExecutorService executorService;
@@ -41,30 +52,32 @@ public class Worker {
 
     public Worker(String bookId) {
         this.bookId = bookId;
+    }
+
+    private void prepareForDownload() {
         this.executorService = Executors.newFixedThreadPool(WORK_THREAD_COUNT);
         jobFutures = new ArrayList<>();
-        urls = ImageUrlRetriever.getBookImagesList(this.bookId);
-        COUNT = urls.size();
         counter = new AtomicInteger(0);
-        checkList = new HashMap<>();
-        for (int i = 0; i < urls.size(); i++) {
-            String savedName = MainActivity.FOLDER + "/" + UUID.randomUUID().toString() + ".jpg";
-            checkList.put(urls.get(i), new Entry(savedName, false));
+        /**首先判断是否有保存状态的攻略书映射清单*/
+        File check = new File(getCheckListNameByBookId(bookId));
+        if (check.exists()) {
+            checkList = getCheckList(bookId);
+            COUNT = checkList.size();
+        } else {
+            checkList = new HashMap<>();
+            urls = ImageUrlRetriever.getBookImagesList(this.bookId);
+            for (int i = 0; i < urls.size(); i++) {
+                String savedName = MainActivity.FOLDER + "/" + UUID.randomUUID().toString() + ".jpg";
+                checkList.put(urls.get(i), new Entry(savedName, false));
+            }
+            COUNT = checkList.size();
         }
     }
 
-    public static class Entry implements Serializable {
-        public String savedName;
-        public boolean isDownloaded;
-
-        public Entry(String savedName, boolean isDownloaded) {
-            this.isDownloaded = isDownloaded;
-            this.savedName = savedName;
-        }
-    }
-
-    public void startDownload() {
-        for (final String url : urls) {
+    private void performDownload() {
+        for (final String url : checkList.keySet()) {
+            final Entry entry = checkList.get(url);
+            if (entry.isDownloaded) continue;
             jobFutures.add(executorService.submit(new Runnable() {
                 @Override
                 public void run() {
@@ -73,6 +86,7 @@ public class Worker {
                     } catch (IOException e) {
                         e.printStackTrace();
                         Log.d(Worker.class.getCanonicalName(), "url: " + url + "download error happened...");
+                        cancelDownload();
                         EventBus.getDefault().post(new ProgressEvent(bookId, counter.get(), false, COUNT));
                     }
                     synchronized (this) {
@@ -90,11 +104,16 @@ public class Worker {
         executorService.shutdown();
     }
 
+    public void startDownload() {
+        prepareForDownload();
+        performDownload();
+    }
+
     public void pauseDownload() {
         //停止线程池，保存下载的对照表
         for (Future job : jobFutures) {
             if (!job.isDone()) {
-                job.cancel(false);
+                job.cancel(true);
             }
         }
         persistCheckList();
@@ -102,16 +121,33 @@ public class Worker {
 
     public void cancelDownload() {
         //根据对照表删除文件，同时删除对照表
+        //停止线程池，保存下载的对照表
+        for (Future job : jobFutures) {
+            if (!job.isDone()) {
+                job.cancel(true);
+            }
+        }
+        deleteCheckList();
     }
 
     public void resumeDownload() {
         //根据对照表重新生成任务，重新回调进度
+        prepareForDownload();
+        performDownload();
     }
 
     public void persistCheckList() {
         String content = JSON.toJSONString(checkList);
         System.out.println(content);
         PersistUtil.saveTextFile(content, getCheckListNameByBookId(bookId));
+    }
+
+
+    /**
+     * internal operations
+     */
+    public void deleteCheckList() {
+        new File(getCheckListNameByBookId(bookId)).deleteOnExit();
     }
 
     public static Map<String, Entry> getCheckList(String book_id) {
