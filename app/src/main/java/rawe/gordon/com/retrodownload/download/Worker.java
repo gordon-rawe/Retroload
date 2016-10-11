@@ -94,13 +94,14 @@ public class Worker {
                         Log.d(Worker.class.getCanonicalName(), "url: " + url + "download error happened...");
                         cancelDownload();
                         EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount + counter.get(), ProgressEvent.EXCEPTION, COUNT));
+                        return;
                     }
                     synchronized (this) {
                         checkList.get(url).isDownloaded = true;
                     }
                     Log.d(Worker.class.getCanonicalName(), "url: " + url + "downloaded...");
                     EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount + counter.incrementAndGet(), COUNT));
-                    if (counter.get() == COUNT) {
+                    if (counter.get()+downloadedCount == COUNT) {
                         Retroload.getInstance().finishDownload(bookId);
                         persistCheckList();
                         EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount + counter.get(), ProgressEvent.FINISH, COUNT));
