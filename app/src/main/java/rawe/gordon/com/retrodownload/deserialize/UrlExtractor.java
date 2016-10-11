@@ -13,25 +13,28 @@ import java.util.List;
 /**
  * Created by gordon on 9/29/16.
  */
-public class Deserializer {
-    public static void main(String[] args) {
+public class UrlExtractor {
+    public static List<String> extractUrls() {
+        List<String> urls = new ArrayList<>();
         try {
             String shit;
-            List<String> urls;
+
             System.out.println(shit = download());
             urls = parseUrls(shit);
             System.out.println(urls.size());
             printUrl(urls);
+            return urls;
         } catch (IOException e) {
             e.printStackTrace();
+            return urls;
         }
     }
 
     public static String download() throws IOException {
         long start = System.currentTimeMillis();
         StringBuilder builder = new StringBuilder();
-//        URLConnection connection = new URL("http://10.2.25.160/Pocket/New/Json/100021.txt").openConnection();
-        URLConnection connection = new URL("http://localhost:8000/x.json").openConnection();
+        URLConnection connection = new URL("http://10.2.25.160/Pocket/New/Json/100021.txt").openConnection();
+//        URLConnection connection = new URL("http://localhost:8000/x.json").openConnection();
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         String line;
         while ((line = bufferedReader.readLine()) != null) {
@@ -65,10 +68,10 @@ public class Deserializer {
         for (Section section : sections) {
             for (SubSection subSection : section.subsections) {
                 images.addAll(subSection.ContentImgSrcs);
-                for (Photo photo : subSection.photos) {
-                    images.add(photo.image_url);
-                    images.add(photo.origin_image_url);
-                }
+//                for (Photo photo : subSection.photos) {
+//                    images.add(photo.image_url);
+//                    images.add(photo.origin_image_url);
+//                }
             }
             if (section.CoverImageUrl != null && !section.CoverImageUrl.equals("")) {
                 images.add(section.CoverImageUrl);
@@ -82,33 +85,4 @@ public class Deserializer {
         }
 
     }
-//
-//    public static void printUrls(List<Parent> nodes) {
-//        nodes.stream().flatMap(new Function<Parent, Stream<SubParent>>() {
-//            @Override
-//            public Stream<SubParent> apply(Parent parent) {
-//                return parent.pages.stream();
-//            }
-//        }).flatMap(new Function<SubParent, Stream<SubSubParent>>() {
-//            @Override
-//            public Stream<SubSubParent> apply(SubParent subParent) {
-//                return subParent.children.stream();
-//            }
-//        }).flatMap(new Function<SubSubParent, Stream<Section>>() {
-//            @Override
-//            public Stream<Section> apply(SubSubParent subSubParent) {
-//                return subSubParent.sections.stream();
-//            }
-//        }).flatMap(new Function<Section, Stream<SubSection>>() {
-//            @Override
-//            public Stream<SubSection> apply(Section section) {
-//                return section.subsections.stream();
-//            }
-//        }).flatMap(new Function<SubSection, Stream<String>>() {
-//            @Override
-//            public Stream<String> apply(SubSection subSection) {
-//                return subSection.ContentImgSrcs.stream();
-//            }
-//        }).forEach(System.out::println);
-//    }
 }
