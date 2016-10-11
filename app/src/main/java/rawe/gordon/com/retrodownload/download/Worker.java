@@ -20,7 +20,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import rawe.gordon.com.retrodownload.MainActivity;
+import rawe.gordon.com.retrodownload.deserialize.MainActivity;
 
 /**
  * Created by gordon on 9/22/16.

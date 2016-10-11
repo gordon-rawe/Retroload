@@ -1,4 +1,4 @@
-package rawe.gordon.com.retrodownload;
+package rawe.gordon.com.retrodownload.deserialize;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +12,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.io.File;
 
+import rawe.gordon.com.retrodownload.R;
 import rawe.gordon.com.retrodownload.download.ProgressEvent;
 import rawe.gordon.com.retrodownload.download.Retroload;
 import rawe.gordon.com.retrodownload.download.Worker;
