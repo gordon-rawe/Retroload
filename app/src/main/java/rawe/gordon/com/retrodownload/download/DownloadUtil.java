@@ -18,12 +18,16 @@ public class DownloadUtil {
     public static void downloadFile(String url, String destination) throws IOException {
         Request request = new Request.Builder().url(url).build();
         Response response = Retroload.getInstance().getClient().newCall(request).execute();
-        if (response.code() != 200) throw new IOException("connection problem happened");
+        if (response.code() != 200) {
+            response.close();
+            throw new IOException("connection problem happened");
+        }
         ByteBuffer buffer = ByteBuffer.wrap(response.body().bytes());
         FileOutputStream fileOutputStream = new FileOutputStream(destination);
         FileChannel fileChannel = fileOutputStream.getChannel();
         fileChannel.write(buffer);
         fileChannel.close();
+        response.close();
         fileOutputStream.close();
     }
 

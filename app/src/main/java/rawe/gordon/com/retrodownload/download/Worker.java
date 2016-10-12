@@ -144,12 +144,12 @@ public class Worker {
     public void cancelDownload() {
         //根据对照表删除文件，同时删除对照表
         //停止线程池，保存下载的对照表
-//        for (Future job : jobFutures) {
-//            if (!job.isDone()) {
-//                job.cancel(false);
-//            }
-//        }
-//        deleteCheckList();
+        for (Future job : jobFutures) {
+            if (!job.isDone()) {
+                job.cancel(true);
+            }
+        }
+        deleteCheckList();
     }
 
     public void resumeDownload() {
