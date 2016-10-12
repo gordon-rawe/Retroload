@@ -92,6 +92,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         else if (event.bookId.equals("2"))
                             percentView2.setText("下载异常 当前进度" + event.getCurrent() + "/" + event.getTotal());
                         break;
+                    case ProgressEvent.CANCEL:
+                        Log.d("onEvent", "NORMAL");
+                        if (event.bookId.equals("1"))
+                            percentView1.setText(event.getBookId()+"已经取消");
+                        else if (event.bookId.equals("2"))
+                            percentView2.setText(event.getBookId()+"已经取消");
+                        break;
                 }
 
             }

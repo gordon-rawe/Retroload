@@ -39,6 +39,8 @@ public class Worker {
 
     public static final int WORK_THREAD_COUNT = 4;
     public static final int RETRIAL_TIME = 3;
+    public static final boolean usingInterruptedWay = true;
+    public boolean cancelPerformed = false;
     private String bookId;
     private ExecutorService executorService;
     private List<Future> jobFutures;
@@ -104,8 +106,9 @@ public class Worker {
                     } catch (IOException e) {
                         e.printStackTrace();
                         Log.d(Worker.class.getCanonicalName(), "url: " + url + "download error happened...");
-                        cancelFutures(true);
-                        EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount + counter.get(), ProgressEvent.EXCEPTION, COUNT));
+                        cancelFutures(usingInterruptedWay);
+                        if (!cancelPerformed)
+                            EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount + counter.get(), ProgressEvent.EXCEPTION, COUNT));
                         return;
                     }
                     synchronized (this) {
@@ -130,15 +133,15 @@ public class Worker {
 
     public void pauseDownload() {
         //停止线程池，保存下载的对照表
-        cancelFutures(true);
+        cancelFutures(usingInterruptedWay);
         persistCheckList();
         Retroload.getInstance().finishDownload(bookId);
     }
 
-    private void cancelFutures(boolean interupted) {
+    private void cancelFutures(boolean interrupted) {
         for (Future job : jobFutures) {
             if (!job.isDone()) {
-                job.cancel(interupted);
+                job.cancel(interrupted);
             }
         }
     }
@@ -146,8 +149,10 @@ public class Worker {
     public void cancelDownload() {
         //根据对照表删除文件，同时删除对照表
         //停止线程池，保存下载的对照表
-        cancelFutures(true);
+        cancelPerformed = true;
+        cancelFutures(usingInterruptedWay);
         deleteCheckList();
+        Retroload.getInstance().finishDownload(bookId);
         EventBus.getDefault().post(new ProgressEvent(bookId, counter.get() + downloadedCount, ProgressEvent.CANCEL, COUNT));
     }
 
@@ -170,7 +175,7 @@ public class Worker {
      * internal operations
      */
     public void deleteCheckList() {
-        new File(getCheckListNameByBookId(bookId)).deleteOnExit();
+        new File(getCheckListNameByBookId(bookId)).delete();
     }
 
     public static Map<String, Entry> getCheckList(String book_id) {

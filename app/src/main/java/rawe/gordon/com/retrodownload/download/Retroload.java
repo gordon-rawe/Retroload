@@ -59,8 +59,9 @@ public class Retroload {
      * 重新恢复某本书下载
      */
     public void resumeDownload(String bookId) {
-        Worker worker = workGroups.get(bookId);
-        if (worker != null) worker.resumeDownload();
+        Worker worker;
+        workGroups.put(bookId, worker = new Worker(bookId));
+        worker.startDownload();
     }
 
     /**
