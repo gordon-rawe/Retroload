@@ -38,10 +38,10 @@ public class Worker {
     }
 
     public static final int WORK_THREAD_COUNT = 4;
+    public static final int RETRIAL_TIME = 3;
     private String bookId;
     private ExecutorService executorService;
     private List<Future> jobFutures;
-    private List<String> urls;
     private int COUNT;
     private int downloadedCount;
     private AtomicInteger counter;
@@ -63,15 +63,26 @@ public class Worker {
             for (final String url : checkList.keySet()) {
                 if (checkList.get(url).isDownloaded) downloadedCount++;
             }
+            performDownload();
         } else {
             downloadedCount = 0;
             checkList = new HashMap<>();
-            urls = ImageUrlRetriever.getBookImagesList(this.bookId);
-            for (int i = 0; i < urls.size(); i++) {
-                String savedName = MainActivity.FOLDER + "/" + UUID.randomUUID().toString() + ".jpg";
-                checkList.put(urls.get(i), new Entry(savedName, false));
-            }
-            COUNT = checkList.size();
+            ImageUrlRetriever.getBookImagesList(this.bookId, new ImageUrlRetriever.ResultTracer() {
+                @Override
+                public void onResult(List<String> urls) {
+                    for (int i = 0; i < urls.size(); i++) {
+                        String savedName = MainActivity.FOLDER + "/" + UUID.randomUUID().toString() + ".jpg";
+                        checkList.put(urls.get(i), new Entry(savedName, false));
+                    }
+                    COUNT = checkList.size();
+                    performDownload();
+                }
+
+                @Override
+                public void onFail() {
+
+                }
+            });
         }
     }
 
@@ -85,6 +96,9 @@ public class Worker {
             final Entry entry = checkList.get(url);
             if (entry.isDownloaded) continue;
             jobFutures.add(executorService.submit(new Runnable() {
+
+                int retrialCount = 0;
+
                 @Override
                 public void run() {
                     try {
@@ -101,7 +115,7 @@ public class Worker {
                     }
                     Log.d(Worker.class.getCanonicalName(), "url: " + url + "downloaded...");
                     EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount + counter.incrementAndGet(), COUNT));
-                    if (counter.get()+downloadedCount == COUNT) {
+                    if (counter.get() + downloadedCount == COUNT) {
                         Retroload.getInstance().finishDownload(bookId);
                         persistCheckList();
                         EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount + counter.get(), ProgressEvent.FINISH, COUNT));
@@ -114,7 +128,6 @@ public class Worker {
 
     public void startDownload() {
         prepareForDownload();
-        performDownload();
     }
 
     public void pauseDownload() {
@@ -142,7 +155,6 @@ public class Worker {
     public void resumeDownload() {
         //根据对照表重新生成任务，重新回调进度
         prepareForDownload();
-        performDownload();
     }
 
     public void persistCheckList() {
