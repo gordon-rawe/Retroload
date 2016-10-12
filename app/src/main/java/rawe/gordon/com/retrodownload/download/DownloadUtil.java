@@ -30,14 +30,4 @@ public class DownloadUtil {
         response.close();
         fileOutputStream.close();
     }
-
-    public static void downloadFile1(String url, String destination) throws IOException {
-        ReadableByteChannel rbc = Channels.newChannel(new URL(url).openStream());
-        FileOutputStream fileOutputStream = new FileOutputStream(destination);
-        FileChannel fileChannel = fileOutputStream.getChannel();
-        fileChannel.transferFrom(rbc, 0, 1 << 23);
-        fileOutputStream.close();
-        fileChannel.close();
-        rbc.close();
-    }
 }

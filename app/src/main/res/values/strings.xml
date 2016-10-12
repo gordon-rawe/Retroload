@@ -11,4 +11,6 @@
     <string name="cancel_2">Cancel 2</string>
     <string name="delete_1">Delete 1</string>
     <string name="delete_2">Delete 2</string>
+    <string name="show_state_1">Show State 1</string>
+    <string name="show_state_2">Show State 2</string>
 </resources>

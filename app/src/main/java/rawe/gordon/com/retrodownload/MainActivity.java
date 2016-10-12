@@ -19,8 +19,8 @@ import rawe.gordon.com.retrodownload.download.Worker;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     public static String FOLDER;
-    private TextView percentView1, startView1, pauseView1, resumeView1, cancelView1, deleteView1;
-    private TextView percentView2, startView2, pauseView2, resumeView2, cancelView2, deleteView2;
+    private TextView percentView1, startView1, pauseView1, resumeView1, cancelView1, deleteView1, showState1;
+    private TextView percentView2, startView2, pauseView2, resumeView2, cancelView2, deleteView2, showState2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +39,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         cancelView2 = (TextView) findViewById(R.id.cancel_2);
         deleteView1 = (TextView) findViewById(R.id.delete_1);
         deleteView2 = (TextView) findViewById(R.id.delete_2);
+        showState1 = (TextView) findViewById(R.id.state_1);
+        showState2 = (TextView) findViewById(R.id.state_2);
         startView1.setOnClickListener(this);
         startView2.setOnClickListener(this);
         pauseView1.setOnClickListener(this);
@@ -49,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         cancelView2.setOnClickListener(this);
         deleteView1.setOnClickListener(this);
         deleteView2.setOnClickListener(this);
+        showState1.setOnClickListener(this);
+        showState2.setOnClickListener(this);
         FOLDER = getExternalCacheDir().toString();
     }
 
@@ -84,9 +88,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     case ProgressEvent.EXCEPTION:
                         Log.d("onEvent", "EXCEPTION");
                         if (event.bookId.equals("1"))
-                            percentView1.setText("下载异常");
+                            percentView1.setText("下载异常 当前进度" + event.getCurrent() + "/" + event.getTotal());
                         else if (event.bookId.equals("2"))
-                            percentView2.setText("下载异常");
+                            percentView2.setText("下载异常 当前进度" + event.getCurrent() + "/" + event.getTotal());
                         break;
                 }
 
@@ -148,6 +152,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } else {
                     Toast.makeText(this, "攻略书2删除失败", Toast.LENGTH_SHORT).show();
                 }
+                break;
+            case R.id.state_1:
+                Log.d("state_1",Retroload.getInstance().traceBookStatus("1").toString());
+                break;
+            case R.id.state_2:
+                Log.d("state_2",Retroload.getInstance().traceBookStatus("2").toString());
                 break;
         }
     }

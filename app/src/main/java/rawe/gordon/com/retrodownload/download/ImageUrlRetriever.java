@@ -22,6 +22,7 @@ public class ImageUrlRetriever {
             retValue.add("http://upload-images.jianshu.io/upload_images/650075-065a44872305cc7d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240");
             retValue.add("http://upload.jianshu.io/users/upload_avatars/261226/f9db6e3c7df6.jpg?imageMogr/thumbnail/90x90/quality/100");
             retValue.add("http://upload.jianshu.io/users/upload_avatars/2184951/0927d742248c?imageMogr/thumbnail/90x90/quality/100");
+            tracer.onResult(retValue);
         } else if (book_id.equals("2")) {
             new Thread(new Runnable() {
                 @Override

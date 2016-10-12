@@ -7,9 +7,9 @@ public class ProgressEvent {
 
     public static final int NORMAL = 0;
     public static final int EXCEPTION = 1;
-    public static final int ALL_DOWNLOADED =2;
+    public static final int ALL_DOWNLOADED = 2;
     public static final int FINISH = 3;
-
+    public static final int CANCEL = 4;
 
     public String bookId;
     public int total;
