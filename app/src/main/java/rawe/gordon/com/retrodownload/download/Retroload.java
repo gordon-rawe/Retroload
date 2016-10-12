@@ -80,7 +80,7 @@ public class Retroload {
      * 获取某本书的地址
      */
     public File getDownloadedBook(String bookId) {
-        File file = new File(Worker.getCheckListNameByBookId(bookId));
+        File file = new File(Worker.getBookNameByBookId(bookId));
         if (file.exists()) {
             return file;
         }

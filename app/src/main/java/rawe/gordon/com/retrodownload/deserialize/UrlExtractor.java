@@ -45,13 +45,15 @@ public class UrlExtractor {
                 if (response.code() != 200) {
                     response.body().close();
                     if (listener != null) listener.onFail();
+                    return;
                 }
-                ByteBuffer buffer = ByteBuffer.wrap(response.body().bytes());
+                byte[] buck = response.body().bytes();
+                ByteBuffer buffer = ByteBuffer.wrap(buck);
                 FileOutputStream fileOutputStream = new FileOutputStream(Worker.getBookNameByBookId(bookId));
                 FileChannel fileChannel = fileOutputStream.getChannel();
                 fileChannel.write(buffer);
                 fileChannel.close();
-                if (listener != null) listener.onDownloaded(new String(response.body().bytes()));
+                if (listener != null) listener.onDownloaded(new String(buck));
                 response.body().close();
                 fileOutputStream.close();
             }

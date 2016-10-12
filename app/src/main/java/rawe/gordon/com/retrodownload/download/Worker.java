@@ -118,6 +118,7 @@ public class Worker {
                         e.printStackTrace();
                         Log.d(Worker.class.getCanonicalName(), "url: " + url + "downloadBook error happened...");
                         cancelFutures(usingInterruptedWay);
+                        Retroload.getInstance().finishDownload(bookId);
                         if (!cancelPerformed)
                             EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount + counter.get(), ProgressEvent.EXCEPTION, COUNT));
                         return;
