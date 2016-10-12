@@ -2,47 +2,66 @@ package rawe.gordon.com.retrodownload.deserialize;
 
 import com.alibaba.fastjson.JSON;
 
-import java.io.BufferedReader;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Request;
+import okhttp3.Response;
+import rawe.gordon.com.retrodownload.download.Retroload;
+import rawe.gordon.com.retrodownload.download.Worker;
 
 /**
  * Created by gordon on 9/29/16.
  */
 public class UrlExtractor {
-    public static List<String> extractUrls() {
-        List<String> urls = new ArrayList<>();
-        try {
-            String shit;
-
-            System.out.println(shit = download());
-            urls = parseUrls(shit);
-            System.out.println(urls.size());
-            printUrl(urls);
-            return urls;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return urls;
-        }
+    public static List<String> extractUrls(String content) {
+        List<String> urls = parseUrls(content);
+        System.out.println(urls.size());
+        printUrl(urls);
+        return urls;
     }
 
-    public static String download() throws IOException {
-        long start = System.currentTimeMillis();
-        StringBuilder builder = new StringBuilder();
-        URLConnection connection = new URL("http://10.2.25.160/Pocket/New/Json/100021.txt").openConnection();
-//        URLConnection connection = new URL("http://localhost:8000/x.json").openConnection();
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String line;
-        while ((line = bufferedReader.readLine()) != null) {
-            builder.append(line);
-        }
-        bufferedReader.close();
-        System.out.println(System.currentTimeMillis() - start);
-        return builder.toString();
+    public static void downloadBook(final String bookId, final BookResult listener) throws IOException {
+        /**
+         * sample url for testing
+         *
+         * URLConnection connection = new URL("http://10.2.25.160/Pocket/New/Json/100021.txt").openConnection();
+         * */
+        Request request = new Request.Builder().url("http://10.2.25.160/Pocket/New/Json/100021.txt").build();
+        Retroload.getInstance().getClient().newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                if (listener != null) listener.onFail();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.code() != 200) {
+                    response.body().close();
+                    if (listener != null) listener.onFail();
+                }
+                ByteBuffer buffer = ByteBuffer.wrap(response.body().bytes());
+                FileOutputStream fileOutputStream = new FileOutputStream(Worker.getBookNameByBookId(bookId));
+                FileChannel fileChannel = fileOutputStream.getChannel();
+                fileChannel.write(buffer);
+                fileChannel.close();
+                if (listener != null) listener.onDownloaded(new String(response.body().bytes()));
+                response.body().close();
+                fileOutputStream.close();
+            }
+        });
+    }
+
+    public interface BookResult {
+        void onDownloaded(String bookContent);
+
+        void onFail();
     }
 
     public static List<String> parseUrls(String content) {
@@ -83,6 +102,5 @@ public class UrlExtractor {
         for (String url : urls) {
             System.out.println(url);
         }
-
     }
 }

@@ -4,12 +4,12 @@ package rawe.gordon.com.retrodownload.download;
  * Created by gordon on 10/8/16.
  */
 public class ProgressEvent {
-
     public static final int NORMAL = 0;
     public static final int EXCEPTION = 1;
     public static final int ALL_DOWNLOADED = 2;
     public static final int FINISH = 3;
     public static final int CANCEL = 4;
+    public static final int BOOK_DOWNLOAD_FAIL = 5;
 
     public String bookId;
     public int total;

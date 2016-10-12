@@ -21,11 +21,14 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import rawe.gordon.com.retrodownload.MainActivity;
+import rawe.gordon.com.retrodownload.deserialize.UrlExtractor;
 
 /**
  * Created by gordon on 9/22/16.
  */
 public class Worker {
+
+    public static final String FOLDER = MainActivity.FOLDER;
 
     public static class Entry implements Serializable {
         public String savedName;
@@ -69,22 +72,30 @@ public class Worker {
         } else {
             downloadedCount = 0;
             checkList = new HashMap<>();
-            ImageUrlRetriever.getBookImagesList(this.bookId, new ImageUrlRetriever.ResultTracer() {
-                @Override
-                public void onResult(List<String> urls) {
-                    for (int i = 0; i < urls.size(); i++) {
-                        String savedName = MainActivity.FOLDER + "/" + UUID.randomUUID().toString() + ".jpg";
-                        checkList.put(urls.get(i), new Entry(savedName, false));
+            try {
+                UrlExtractor.downloadBook(bookId, new UrlExtractor.BookResult() {
+                    @Override
+                    public void onDownloaded(String bookContent) {
+                        List<String> urls = ImageUrlRetriever.getBookImagesList(bookContent);
+                        for (int i = 0; i < urls.size(); i++) {
+                            String savedName = FOLDER + "/" + UUID.randomUUID().toString() + ".jpg";
+                            checkList.put(urls.get(i), new Entry(savedName, false));
+                        }
+                        COUNT = checkList.size();
+                        performDownload();
                     }
-                    COUNT = checkList.size();
-                    performDownload();
-                }
 
-                @Override
-                public void onFail() {
-
-                }
-            });
+                    @Override
+                    public void onFail() {
+                        EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount, ProgressEvent.BOOK_DOWNLOAD_FAIL, COUNT));
+                        Retroload.getInstance().finishDownload(bookId);
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+                EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount, ProgressEvent.BOOK_DOWNLOAD_FAIL, COUNT));
+                Retroload.getInstance().finishDownload(bookId);
+            }
         }
     }
 
@@ -105,7 +116,7 @@ public class Worker {
                         DownloadUtil.downloadFile(url, checkList.get(url).savedName);
                     } catch (IOException e) {
                         e.printStackTrace();
-                        Log.d(Worker.class.getCanonicalName(), "url: " + url + "download error happened...");
+                        Log.d(Worker.class.getCanonicalName(), "url: " + url + "downloadBook error happened...");
                         cancelFutures(usingInterruptedWay);
                         if (!cancelPerformed)
                             EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount + counter.get(), ProgressEvent.EXCEPTION, COUNT));
@@ -190,6 +201,10 @@ public class Worker {
     }
 
     public static String getCheckListNameByBookId(String bookId) {
-        return MainActivity.FOLDER + "/check_list_" + bookId + ".txt";
+        return FOLDER + "/check_list_" + bookId + ".txt";
+    }
+
+    public static String getBookNameByBookId(String bookId) {
+        return FOLDER + "/book_" + bookId + ".txt";
     }
 }

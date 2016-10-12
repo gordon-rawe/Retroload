@@ -2,11 +2,8 @@ package rawe.gordon.com.retrodownload.download;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
 
 import okhttp3.Request;
 import okhttp3.Response;
