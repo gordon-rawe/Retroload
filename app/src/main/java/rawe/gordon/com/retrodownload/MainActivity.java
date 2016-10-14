@@ -147,14 +147,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Retroload.getInstance().cancelDownload("2");
                 break;
             case R.id.delete_1:
-                if (new File(Worker.getCheckListNameByBookId("1")).delete()) {
+                if (Retroload.getInstance().deleteBook("1")) {
                     Toast.makeText(this, "攻略书1删除成功", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(this, "攻略书1删除失败", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.delete_2:
-                if (new File(Worker.getCheckListNameByBookId("2")).delete()) {
+                if (Retroload.getInstance().deleteBook("2")) {
                     Toast.makeText(this, "攻略书2删除成功", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(this, "攻略书2删除失败", Toast.LENGTH_SHORT).show();

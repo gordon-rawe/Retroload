@@ -8,8 +8,11 @@ import com.alibaba.fastjson.JSONObject;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +44,6 @@ public class Worker {
     }
 
     public static final int WORK_THREAD_COUNT = 4;
-    public static final int RETRIAL_TIME = 3;
     public static final boolean usingInterruptedWay = true;
     public boolean cancelPerformed = false;
     private String bookId;
@@ -76,6 +78,7 @@ public class Worker {
                 UrlExtractor.downloadBook(bookId, new UrlExtractor.BookResult() {
                     @Override
                     public void onDownloaded(String bookContent) {
+                        persistBook(bookContent);
                         List<String> urls = ImageUrlRetriever.getBookImagesList(bookContent);
                         for (int i = 0; i < urls.size(); i++) {
                             String savedName = FOLDER + "/" + UUID.randomUUID().toString() + ".jpg";
@@ -119,6 +122,7 @@ public class Worker {
                         Log.d(Worker.class.getCanonicalName(), "url: " + url + "downloadBook error happened...");
                         cancelFutures(usingInterruptedWay);
                         Retroload.getInstance().finishDownload(bookId);
+                        persistCheckList();
                         if (!cancelPerformed)
                             EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount + counter.get(), ProgressEvent.EXCEPTION, COUNT));
                         return;
@@ -164,6 +168,7 @@ public class Worker {
         cancelPerformed = true;
         cancelFutures(usingInterruptedWay);
         deleteCheckList();
+        deleteBook();
         Retroload.getInstance().finishDownload(bookId);
         EventBus.getDefault().post(new ProgressEvent(bookId, counter.get() + downloadedCount, ProgressEvent.CANCEL, COUNT));
     }
@@ -171,6 +176,10 @@ public class Worker {
     public void resumeDownload() {
         //根据对照表重新生成任务，重新回调进度
         prepareForDownload();
+    }
+
+    public void persistBook(String content) {
+        PersistUtil.saveTextFile(content, getBookNameByBookId(bookId));
     }
 
     public void persistCheckList() {
@@ -190,10 +199,15 @@ public class Worker {
         new File(getCheckListNameByBookId(bookId)).delete();
     }
 
+    public void deleteBook() {
+        new File(getBookNameByBookId(bookId)).delete();
+    }
+
     public static Map<String, Entry> getCheckList(String book_id) {
         Map<String, Entry> retValue = new HashMap<>();
         String content = PersistUtil.readFileAsText(getCheckListNameByBookId(book_id));
         JSONObject jsonObject = JSON.parseObject(content);
+        if(jsonObject==null) return retValue;
         for (String key : jsonObject.keySet()) {
             JSONObject tmpValue = (JSONObject) jsonObject.get(key);
             retValue.put(key, new Entry((String) tmpValue.get("savedName"), (Boolean) tmpValue.get("isDownloaded")));

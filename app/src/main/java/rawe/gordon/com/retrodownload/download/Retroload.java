@@ -1,5 +1,7 @@
 package rawe.gordon.com.retrodownload.download;
 
+import android.os.AsyncTask;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -85,6 +87,22 @@ public class Retroload {
             return file;
         }
         return null;
+    }
+
+    public boolean deleteBook(String bookId) {
+        File book = new File(Worker.getBookNameByBookId(bookId));
+        File checkList = new File(Worker.getCheckListNameByBookId(bookId));
+        Map<String, Worker.Entry> entries = Worker.getCheckList(bookId);
+        for (final Map.Entry<String, Worker.Entry> entry : entries.entrySet()) {
+            if(entry.getValue().isDownloaded)
+            AsyncTask.execute(new Runnable() {
+                @Override
+                public void run() {
+                    new File(entry.getValue().savedName).delete();
+                }
+            });
+        }
+        return checkList.delete() && book.delete();
     }
 
 

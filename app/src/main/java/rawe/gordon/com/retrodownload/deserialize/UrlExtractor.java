@@ -2,10 +2,7 @@ package rawe.gordon.com.retrodownload.deserialize;
 
 import com.alibaba.fastjson.JSON;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +11,6 @@ import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.Response;
 import rawe.gordon.com.retrodownload.download.Retroload;
-import rawe.gordon.com.retrodownload.download.Worker;
 
 /**
  * Created by gordon on 9/29/16.
@@ -48,14 +44,8 @@ public class UrlExtractor {
                     return;
                 }
                 byte[] buck = response.body().bytes();
-                ByteBuffer buffer = ByteBuffer.wrap(buck);
-                FileOutputStream fileOutputStream = new FileOutputStream(Worker.getBookNameByBookId(bookId));
-                FileChannel fileChannel = fileOutputStream.getChannel();
-                fileChannel.write(buffer);
-                fileChannel.close();
                 if (listener != null) listener.onDownloaded(new String(buck));
                 response.body().close();
-                fileOutputStream.close();
             }
         });
     }
