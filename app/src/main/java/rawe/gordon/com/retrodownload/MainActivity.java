@@ -10,11 +10,8 @@ import android.widget.Toast;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.io.File;
-
 import rawe.gordon.com.retrodownload.download.ProgressEvent;
 import rawe.gordon.com.retrodownload.download.Retroload;
-import rawe.gordon.com.retrodownload.download.Worker;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -70,9 +67,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     case ProgressEvent.ALL_DOWNLOADED:
                         Log.d("onEvent", "ALL_DOWNLOADED");
                         Toast.makeText(MainActivity.this, "攻略书" + event.getBookId() + "已经下载好了", Toast.LENGTH_SHORT).show();
-                        break;
-                    case ProgressEvent.FINISH:
-                        Log.d("onEvent", "FINISH");
                         if (event.bookId.equals("1"))
                             percentView1.setText("下载结束");
                         else if (event.bookId.equals("2"))
@@ -85,8 +79,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         else if (event.bookId.equals("2"))
                             percentView2.setText("finished -> " + event.current + " total -> " + event.total);
                         break;
-                    case ProgressEvent.EXCEPTION:
-                        Log.d("onEvent", "EXCEPTION");
+                    case ProgressEvent.PAUSED:
+                        Log.d("onEvent", "PAUSED");
                         if (event.bookId.equals("1"))
                             percentView1.setText("下载异常 当前进度" + event.getCurrent() + "/" + event.getTotal());
                         else if (event.bookId.equals("2"))
@@ -95,9 +89,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     case ProgressEvent.CANCEL:
                         Log.d("onEvent", "NORMAL");
                         if (event.bookId.equals("1"))
-                            percentView1.setText(event.getBookId()+"已经取消");
+                            percentView1.setText(event.getBookId() + "已经取消");
                         else if (event.bookId.equals("2"))
-                            percentView2.setText(event.getBookId()+"已经取消");
+                            percentView2.setText(event.getBookId() + "已经取消");
                         break;
                 }
 
@@ -161,10 +155,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
             case R.id.state_1:
-                Log.d("state_1",Retroload.getInstance().traceBookStatus("1").toString());
+                Log.d("state_1", Retroload.getInstance().traceBookStatus("1").toString());
                 break;
             case R.id.state_2:
-                Log.d("state_2",Retroload.getInstance().traceBookStatus("2").toString());
+                Log.d("state_2", Retroload.getInstance().traceBookStatus("2").toString());
                 break;
         }
     }

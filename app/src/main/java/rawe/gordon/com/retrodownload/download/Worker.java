@@ -8,11 +8,8 @@ import com.alibaba.fastjson.JSONObject;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,9 +40,10 @@ public class Worker {
         }
     }
 
-    public static final int WORK_THREAD_COUNT = 4;
+    public static final int WORK_THREAD_COUNT = Runtime.getRuntime().availableProcessors() + 1;
     public static final boolean usingInterruptedWay = true;
-    public boolean cancelPerformed = false;
+    public volatile boolean cancelPerformed = false;
+    public volatile boolean exceptionHappened = false;
     private String bookId;
     private ExecutorService executorService;
     private List<Future> jobFutures;
@@ -78,6 +76,7 @@ public class Worker {
                 UrlExtractor.downloadBook(bookId, new UrlExtractor.BookResult() {
                     @Override
                     public void onDownloaded(String bookContent) {
+                        EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount, ProgressEvent.BOOK_DOWNLOAD_SUCCESS, COUNT));
                         persistBook(bookContent);
                         List<String> urls = ImageUrlRetriever.getBookImagesList(bookContent);
                         for (int i = 0; i < urls.size(); i++) {
@@ -123,8 +122,10 @@ public class Worker {
                         cancelFutures(usingInterruptedWay);
                         Retroload.getInstance().finishDownload(bookId);
                         persistCheckList();
-                        if (!cancelPerformed)
-                            EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount + counter.get(), ProgressEvent.EXCEPTION, COUNT));
+                        if (!cancelPerformed && !exceptionHappened) {
+                            EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount + counter.get(), ProgressEvent.PAUSED, COUNT));
+                            exceptionHappened = true;
+                        }
                         return;
                     }
                     synchronized (this) {
@@ -135,7 +136,7 @@ public class Worker {
                     if (counter.get() + downloadedCount == COUNT) {
                         Retroload.getInstance().finishDownload(bookId);
                         persistCheckList();
-                        EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount + counter.get(), ProgressEvent.FINISH, COUNT));
+                        EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount + counter.get(), ProgressEvent.ALL_DOWNLOADED, COUNT));
                     }
                 }
             }));
@@ -207,7 +208,7 @@ public class Worker {
         Map<String, Entry> retValue = new HashMap<>();
         String content = PersistUtil.readFileAsText(getCheckListNameByBookId(book_id));
         JSONObject jsonObject = JSON.parseObject(content);
-        if(jsonObject==null) return retValue;
+        if (jsonObject == null) return retValue;
         for (String key : jsonObject.keySet()) {
             JSONObject tmpValue = (JSONObject) jsonObject.get(key);
             retValue.put(key, new Entry((String) tmpValue.get("savedName"), (Boolean) tmpValue.get("isDownloaded")));

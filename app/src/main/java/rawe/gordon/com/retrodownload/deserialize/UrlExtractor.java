@@ -44,7 +44,9 @@ public class UrlExtractor {
                     return;
                 }
                 byte[] buck = response.body().bytes();
-                if (listener != null) listener.onDownloaded(new String(buck));
+                if (buck == null || buck.length == 0) {
+                    if (listener != null) listener.onFail();
+                } else if (listener != null) listener.onDownloaded(new String(buck));
                 response.body().close();
             }
         });
