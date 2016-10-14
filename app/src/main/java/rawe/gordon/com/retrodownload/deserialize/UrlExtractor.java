@@ -29,7 +29,7 @@ public class UrlExtractor {
          *
          * URLConnection connection = new URL("http://10.2.25.160/Pocket/New/Json/100021.txt").openConnection();
          * */
-        Request request = new Request.Builder().url("http://10.2.25.160/Pocket/New/Json/100021.txt").build();
+        Request request = new Request.Builder().url(bookId).build();
         Retroload.getInstance().getClient().newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -81,10 +81,11 @@ public class UrlExtractor {
         for (Section section : sections) {
             for (SubSection subSection : section.subsections) {
                 images.addAll(subSection.ContentImgSrcs);
-//                for (Photo photo : subSection.photos) {
-//                    images.add(photo.image_url);
-//                    images.add(photo.origin_image_url);
-//                }
+                if(subSection.photos!=null)
+                for (Photo photo : subSection.photos) {
+                    images.add(photo.image_url);
+                    images.add(photo.origin_image_url);
+                }
             }
             if (section.CoverImageUrl != null && !section.CoverImageUrl.equals("")) {
                 images.add(section.CoverImageUrl);

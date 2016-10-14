@@ -11,5 +11,5 @@ public class SubSection {
     }
 
     public List<String> ContentImgSrcs;
-//    public List<Photo> photos;
+    public List<Photo> photos;
 }

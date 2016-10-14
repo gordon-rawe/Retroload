@@ -10,6 +10,7 @@ import android.widget.Toast;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import rawe.gordon.com.retrodownload.download.ImageUrlRetriever;
 import rawe.gordon.com.retrodownload.download.ProgressEvent;
 import rawe.gordon.com.retrodownload.download.Retroload;
 
@@ -67,28 +68,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     case ProgressEvent.ALL_DOWNLOADED:
                         Log.d("onEvent", "ALL_DOWNLOADED");
                         Toast.makeText(MainActivity.this, "攻略书" + event.getBookId() + "已经下载好了", Toast.LENGTH_SHORT).show();
-                        if (event.bookId.equals("1"))
+                        if (event.bookId.equals("http://10.2.25.160/Pocket/New/Json/100021.txt"))
                             percentView1.setText("下载结束");
                         else if (event.bookId.equals("2"))
                             percentView2.setText("下载结束");
                         break;
                     case ProgressEvent.NORMAL:
                         Log.d("onEvent", "NORMAL");
-                        if (event.bookId.equals("1"))
+                        if (event.bookId.equals("http://10.2.25.160/Pocket/New/Json/100021.txt"))
                             percentView1.setText("finished -> " + event.current + " total -> " + event.total);
                         else if (event.bookId.equals("2"))
                             percentView2.setText("finished -> " + event.current + " total -> " + event.total);
                         break;
                     case ProgressEvent.PAUSED:
                         Log.d("onEvent", "PAUSED");
-                        if (event.bookId.equals("1"))
+                        if (event.bookId.equals("http://10.2.25.160/Pocket/New/Json/100021.txt"))
                             percentView1.setText("下载异常 当前进度" + event.getCurrent() + "/" + event.getTotal());
                         else if (event.bookId.equals("2"))
                             percentView2.setText("下载异常 当前进度" + event.getCurrent() + "/" + event.getTotal());
                         break;
                     case ProgressEvent.CANCEL:
                         Log.d("onEvent", "NORMAL");
-                        if (event.bookId.equals("1"))
+                        if (event.bookId.equals("http://10.2.25.160/Pocket/New/Json/100021.txt"))
                             percentView1.setText(event.getBookId() + "已经取消");
                         else if (event.bookId.equals("2"))
                             percentView2.setText(event.getBookId() + "已经取消");
@@ -110,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (view.getId()) {
             case R.id.start_1:
                 try {
-                    Retroload.getInstance().startDownload("1");
+                    Retroload.getInstance().startDownload("http://10.2.25.160/Pocket/New/Json/100021.txt");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -123,25 +124,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
             case R.id.pause_1:
-                Retroload.getInstance().pauseDownload("1");
+                Retroload.getInstance().pauseDownload("http://10.2.25.160/Pocket/New/Json/100021.txt");
                 break;
             case R.id.pause_2:
                 Retroload.getInstance().pauseDownload("2");
                 break;
             case R.id.resume_1:
-                Retroload.getInstance().resumeDownload("1");
+                Retroload.getInstance().resumeDownload("http://10.2.25.160/Pocket/New/Json/100021.txt");
                 break;
             case R.id.resume_2:
                 Retroload.getInstance().resumeDownload("2");
                 break;
             case R.id.cancel_1:
-                Retroload.getInstance().cancelDownload("1");
+                Retroload.getInstance().cancelDownload("http://10.2.25.160/Pocket/New/Json/100021.txt");
                 break;
             case R.id.cancel_2:
                 Retroload.getInstance().cancelDownload("2");
                 break;
             case R.id.delete_1:
-                if (Retroload.getInstance().deleteBook("1")) {
+                if (Retroload.getInstance().deleteBook("http://10.2.25.160/Pocket/New/Json/100021.txt")) {
                     Toast.makeText(this, "攻略书1删除成功", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(this, "攻略书1删除失败", Toast.LENGTH_SHORT).show();
@@ -155,10 +156,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
             case R.id.state_1:
-                Log.d("state_1", Retroload.getInstance().traceBookStatus("1").toString());
+                Log.d("state_1", Retroload.getInstance().traceBookStatus("http://10.2.25.160/Pocket/New/Json/100021.txt").toString());
                 break;
             case R.id.state_2:
-                Log.d("state_2", Retroload.getInstance().traceBookStatus("2").toString());
+                ImageUrlRetriever.getInstance().refreshCheckListEntries();
+                ImageUrlRetriever.getInstance().dumpToLog();
                 break;
         }
     }

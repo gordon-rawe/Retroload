@@ -92,7 +92,7 @@ public class Retroload {
     public boolean deleteBook(String bookId) {
         File book = new File(Worker.getBookNameByBookId(bookId));
         File checkList = new File(Worker.getCheckListNameByBookId(bookId));
-        Map<String, Worker.Entry> entries = Worker.getCheckList(bookId);
+        Map<String, Worker.Entry> entries = Worker.getCheckListByIdentifier(bookId);
         for (final Map.Entry<String, Worker.Entry> entry : entries.entrySet()) {
             if(entry.getValue().isDownloaded)
             AsyncTask.execute(new Runnable() {
@@ -117,7 +117,7 @@ public class Retroload {
         }
         if (!new File(Worker.getCheckListNameByBookId(bookId)).exists())
             return new BookStatus(0, 0, BookStatus.NOT_DOWNLOADED);
-        Map<String, Worker.Entry> entries = Worker.getCheckList(bookId);
+        Map<String, Worker.Entry> entries = Worker.getCheckListByIdentifier(bookId);
         int count = entries.size();
         int downloadedCount = 0;
         for (String key : entries.keySet()) {

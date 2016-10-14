@@ -63,7 +63,7 @@ public class Worker {
         /**首先判断是否有保存状态的攻略书映射清单*/
         File check = new File(getCheckListNameByBookId(bookId));
         if (check.exists()) {
-            checkList = getCheckList(bookId);
+            checkList = getCheckListByIdentifier(bookId);
             COUNT = checkList.size();
             for (final String url : checkList.keySet()) {
                 if (checkList.get(url).isDownloaded) downloadedCount++;
@@ -78,7 +78,7 @@ public class Worker {
                     public void onDownloaded(String bookContent) {
                         EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount, ProgressEvent.BOOK_DOWNLOAD_SUCCESS, COUNT));
                         persistBook(bookContent);
-                        List<String> urls = ImageUrlRetriever.getBookImagesList(bookContent);
+                        List<String> urls = ImageUrlRetriever.getInstance().parseBookImagesList(bookContent);
                         for (int i = 0; i < urls.size(); i++) {
                             String savedName = FOLDER + "/" + UUID.randomUUID().toString() + ".jpg";
                             checkList.put(urls.get(i), new Entry(savedName, false));
@@ -137,6 +137,7 @@ public class Worker {
                         Retroload.getInstance().finishDownload(bookId);
                         persistCheckList();
                         EventBus.getDefault().post(new ProgressEvent(bookId, downloadedCount + counter.get(), ProgressEvent.ALL_DOWNLOADED, COUNT));
+                        ImageUrlRetriever.getInstance().refreshCheckListEntries();
                     }
                 }
             }));
@@ -204,7 +205,7 @@ public class Worker {
         new File(getBookNameByBookId(bookId)).delete();
     }
 
-    public static Map<String, Entry> getCheckList(String book_id) {
+    public static Map<String, Entry> getCheckListByIdentifier(String book_id) {
         Map<String, Entry> retValue = new HashMap<>();
         String content = PersistUtil.readFileAsText(getCheckListNameByBookId(book_id));
         JSONObject jsonObject = JSON.parseObject(content);
@@ -216,11 +217,23 @@ public class Worker {
         return retValue;
     }
 
+    public static Map<String, Entry> getCheckListByFileName(String fileName) {
+        Map<String, Entry> retValue = new HashMap<>();
+        String content = PersistUtil.readFileAsText(FOLDER + "/" + fileName);
+        JSONObject jsonObject = JSON.parseObject(content);
+        if (jsonObject == null) return retValue;
+        for (String key : jsonObject.keySet()) {
+            JSONObject tmpValue = (JSONObject) jsonObject.get(key);
+            retValue.put(key, new Entry((String) tmpValue.get("savedName"), (Boolean) tmpValue.get("isDownloaded")));
+        }
+        return retValue;
+    }
+
     public static String getCheckListNameByBookId(String bookId) {
-        return FOLDER + "/check_list_" + bookId + ".txt";
+        return FOLDER + "/check_list_" + bookId.hashCode() + ".txt";
     }
 
     public static String getBookNameByBookId(String bookId) {
-        return FOLDER + "/book_" + bookId + ".txt";
+        return FOLDER + "/book_" + bookId.hashCode() + ".txt";
     }
 }
